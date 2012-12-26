@@ -5,7 +5,7 @@ Based on Princeton University's ZChaff research project, we were assigned the fo
 The decision method of the original design picked the next variable to be assigned based on _ordered_vars vector, selecting the highest scored variable yet unassigned.
 We created CVariableOrderManager class, to assume responsibility for picking the next assigned variable and maintaining the variables order, using the newly added CCycle class.
 Variables are chosen for assignment in the following order:
-First pick and assign all the state variables, clock cycle by clock cycle, by the defined order.
+First pick and assign all the state variables, clock cycle by clock cycle, by the defined DFS order.
 For each clock cycle, state variables order is decided by their score, as per original algorithm.
 Later on, assign all remaining variables (logic gates, input variables) – 
 also by score.
