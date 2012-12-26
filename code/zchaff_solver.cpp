@@ -422,7 +422,8 @@ void CVariableOrderManager::update_available_var_modifications(CVariable& var) {
 
 // ****************************************************************************
 //
-//       Original ZChaff code starts here
+//       Original ZChaff code starts here, with addition calls to
+//       CVariableOrderManager methods.
 //
 // ****************************************************************************
 
