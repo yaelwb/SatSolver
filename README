@@ -1,0 +1,82 @@
+Usage instructions for BMC Zchaff and auxiliary scripts:
+--------------------------------------------------------
+
+In general, Our BMC version of Zchaff runs on unix and linux.
+
+Running batch.pl is sufficient in order to use BMC Zchaff on any amount of specifications, 
+as well as various cycles number for each spec.
+In order for it to run properly, the following directories structure should be kept:
+
+-vlsi->
+	-run.pl
+	-batch.pl
+	-bmc_input				(required as an input for run.pl)
+	-bin->
+		-bmc				(required for run.pl)
+		-InputVarDiff		(required for run.pl)
+		-createSmv			(auxiliary)
+		-dup.pl			(auxiliary)		
+	-smv_files				(includes circuit specification files, in .smv format)
+	-zchaff->
+		-originalZchaff		(includes original zchaff code files, compiled by given Makefile)
+		-bmcZchaff			(includes our modified zchaff code files, compiled by given Makefile)
+	-target->
+		-cnf_files			(will include cnf formula files, in .cnf format)
+		-results			(will include result files, in .res format)
+
+
+batch.pl should be ran from vlsi folder. It uses run.pl which should be in the same folder.
+run.pl is used to invoke bmc, InputVarDiff and zchaff for one circuit, for a specific k (cycles number).
+batch.pl perform this operation for each pair of (spec,k).
+
+batch.pl usage:
+./batch.pl <tests>
+while tests file is built at the following format:
+one line for each benchmark, including spec name (should exist in smv_files folder),
+one space and required k's separeted by commas.
+Note that spec name should not contain '.smv' suffix.
+for example:
+
+s35932 30,35,40,45
+b17 3,5,7,10
+b19 2
+dup_s15850 2,50,70
+
+As a result, cnf files will be created in cnf_files directory, to be given as an input for zchaff.
+zchaff output is saved in results folder. Also, an .csv file is created in target folder,
+containnig a summary of all tests run on that specification, with the following information:
+spec name, num cycles, zchaff version, modified (input and state vars were seperated), 
+total run time, num of decisions.
+The .csv file can be later opened by Excel or OpenOffice.
+--------------------------------------------------------------------------------------------------
+run.pl usage:
+./run.pl -n <spec name> -k <num cycles> [-cb] [-cm] [-rb] [-rm] [-v <zchaff version>]
+spec name - without .smv extension.
+cb - create cnf using bmc.
+cm - create modified cnf using InputVarDiff.
+rb - run zchaff versions on original cnf.
+rm - run zchaff versions on modified cnf.
+for our testing the correct usage is: 
+./run.pl -n <spec name> -k <num cycles> -cb -cm -rm -v originalZchaff -v bmcZchaff
+This is the usage done in batch.pl, which is the only script to be run for tests.
+
+compare_batch.pl runs both our bmc version and the original zchaff version:
+./run.pl -n <spec name> -k <num cycles> -cb -cm -rm -v originalZchaff -v bmcZchaff
+--------------------------------------------------------------------------------------------------
+dup.pl is an auxiliary script which duplicates a given circuit specification and creates the required formula.
+it requires the following arguments: <original smv file> <target smv file>
+
+InputVarDiff is used to differ between input variables and state variables. 
+It receives a specification (in .smv format) and a formula (in .cnf format) and creates a modified cnf file 
+in which input vars are marked with 'I' and state vars are marked with 'V'.
+This is done in order for bmcZchaff to parse the cnf file correctly.
+usage: 
+./InputVarDiff <SpecName> <CnfOldName> <CnfNewName>
+--------------------------------------------------------------------------------------------------
+createSmv and bmc were given from our instructor.
+
+createSmv - converts specifications from .bench format to .smv format.
+
+bmc - converts circuit specifications (*.smv files) to cnf representation.
+usage: 
+bmc -k <clock cycles> -exact - nocoi -dimacs <spec_name.smv> > spec_name.cnf 
